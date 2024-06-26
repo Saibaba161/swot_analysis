@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website SWOT Analysis</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #urlForm {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        #urlInput {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+        }
+        #submitBtn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+        }
+        #submitBtn:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        .swot-category {
+            margin-bottom: 15px;
+        }
+        .swot-category h3 {
+            color: #333;
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+        .swot-category ul {
+            padding-left: 20px;
+        }
+        #loading {
+            text-align: center;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Website SWOT Analysis</h1>
+        <form id="urlForm">
+            <input type="url" id="urlInput" placeholder="Enter website URL" required>
+            <button type="submit" id="submitBtn">Analyze</button>
+        </form>
+        <div id="loading">Analyzing...</div>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('urlForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = document.getElementById('urlInput').value;
+            analyzeSWOT(url);
+        });
+
+        async function analyzeSWOT(url) {
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            loading.style.display = 'block';
+            result.innerHTML = '';
+
+            try {
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Analysis failed');
+                }
+
+                const analysis = await response.json();
+                displayResults(analysis);
+            } catch (error) {
+                result.innerHTML = `<p>Error: ${error.message}</p>`;
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function displayResults(analysis) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `
+                <div class="swot-category">
+                    <h3>Strengths</h3>
+                    <ul>${analysis.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+                </div>
+                <div class="swot-category">
+                    <h3>Weaknesses</h3>
+                    <ul>${analysis.weaknesses.map(w => `<li>${w}</li>`).join('')}</ul>
+                </div>
+                <div class="swot-category">
+                    <h3>Opportunities</h3>
+                    <ul>${analysis.opportunities.map(o => `<li>${o}</li>`).join('')}</ul>
+                </div>
+                <div class="swot-category">
+                    <h3>Threats</h3>
+                    <ul>${analysis.threats.map(t => `<li>${t}</li>`).join('')}</ul>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
