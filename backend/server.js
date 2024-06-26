@@ -69,10 +69,8 @@ async function analyzeSWOT(url) {
     }
 }
 
-if (process.env.VERCEL) {
-    module.exports = app;
-} else {
+if (process.env.NODE_ENV !== 'production') {
     app.listen(port, () => {
-      console.log(`Server running at http://localhost:${port}`);
+        console.log(`Server running at http://localhost:${port}`);
     });
 }
