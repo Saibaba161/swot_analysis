@@ -4,7 +4,7 @@ const cheerio = require('cheerio');
 const cors = require('cors');
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 8000
 
 const allowedOrigins = process.env.ALLOWED_ORIGINS
 
@@ -70,8 +70,6 @@ async function analyzeSWOT(url) {
     }
 }
 
-if (process.env.NODE_ENV !== 'production') {
-    app.listen(port, () => {
-        console.log(`Server running at http://localhost:${port}`);
-    });
-}
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+});
