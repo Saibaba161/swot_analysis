@@ -228,7 +228,15 @@
                   password,
                 });
 
-              if (signUpError) throw signUpError;
+              // If user already exists, it means the password was wrong
+              if (
+                signUpError &&
+                signUpError.message.includes("User already registered")
+              ) {
+                throw new Error("Incorrect password. Please try again.");
+              } else if (signUpError) {
+                throw signUpError;
+              }
 
               // If signup successful, use the session from signup
               if (signUpData?.session) {
