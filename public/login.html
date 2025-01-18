@@ -179,13 +179,18 @@
       const supabaseUrl = "https://jwmxtrkxdhdxqjprplzk.supabase.co";
       const supabaseKey =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bXh0cmt4ZGhkeHFqcHJwbHprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxODUzNTUsImV4cCI6MjA1Mjc2MTM1NX0.rh968cs_vbhEqB2Yc89WkfRaZXoTKwNSvzbNgTGNchE";
-      const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+      // Initialize Supabase client properly
+      const supabaseClient = window.supabase.createClient(
+        supabaseUrl,
+        supabaseKey
+      );
 
       // Check if user is already logged in
       async function checkAuth() {
         const {
           data: { session },
-        } = await supabase.auth.getSession();
+        } = await supabaseClient.auth.getSession();
         if (session) {
           window.location.href = "/index.html";
         }
@@ -210,7 +215,7 @@
             submitButton.disabled = true;
 
             // First try to sign in
-            let { data, error } = await supabase.auth.signInWithPassword({
+            let { data, error } = await supabaseClient.auth.signInWithPassword({
               email,
               password,
             });
@@ -218,7 +223,7 @@
             // If login fails with "invalid credentials", try to sign up
             if (error && error.message.includes("Invalid login credentials")) {
               const { data: signUpData, error: signUpError } =
-                await supabase.auth.signUp({
+                await supabaseClient.auth.signUp({
                   email,
                   password,
                 });
@@ -228,7 +233,7 @@
               // If signup successful, try login again
               if (signUpData) {
                 const { data: loginData, error: loginError } =
-                  await supabase.auth.signInWithPassword({
+                  await supabaseClient.auth.signInWithPassword({
                     email,
                     password,
                   });

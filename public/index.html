@@ -170,13 +170,18 @@
       const supabaseUrl = "https://jwmxtrkxdhdxqjprplzk.supabase.co";
       const supabaseKey =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bXh0cmt4ZGhkeHFqcHJwbHprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxODUzNTUsImV4cCI6MjA1Mjc2MTM1NX0.rh968cs_vbhEqB2Yc89WkfRaZXoTKwNSvzbNgTGNchE";
-      const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+      // Initialize Supabase client properly
+      const supabaseClient = window.supabase.createClient(
+        supabaseUrl,
+        supabaseKey
+      );
 
       // Check authentication on page load
       async function checkAuth() {
         const {
           data: { session },
-        } = await supabase.auth.getSession();
+        } = await supabaseClient.auth.getSession();
         if (!session) {
           window.location.href = "/login.html";
           return;
@@ -186,7 +191,7 @@
       }
 
       async function logout() {
-        await supabase.auth.signOut();
+        await supabaseClient.auth.signOut();
         window.location.href = "/login.html";
       }
 
@@ -209,7 +214,7 @@
           try {
             const {
               data: { session },
-            } = await supabase.auth.getSession();
+            } = await supabaseClient.auth.getSession();
             const response = await fetch("/analyze", {
               method: "POST",
               headers: {
