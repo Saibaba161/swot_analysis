@@ -3,6 +3,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const cors = require('cors');
 const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config();
 
 const app = express()
 const port = process.env.PORT || 8000
