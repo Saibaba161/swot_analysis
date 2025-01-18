@@ -221,33 +221,19 @@
             });
 
             // If login fails with invalid credentials, try to sign up
-            if (
-              error &&
-              (error.message.includes("Invalid login credentials") ||
-                error.message.includes("Email not confirmed"))
-            ) {
+            if (error && error.message.includes("Invalid login credentials")) {
               const { data: signUpData, error: signUpError } =
                 await supabaseClient.auth.signUp({
                   email,
                   password,
-                  options: {
-                    data: {
-                      email_confirmed: true,
-                    },
-                  },
                 });
 
               if (signUpError) throw signUpError;
 
-              // Try to sign in immediately after signup
-              const { data: loginData, error: loginError } =
-                await supabaseClient.auth.signInWithPassword({
-                  email,
-                  password,
-                });
-
-              if (loginError) throw loginError;
-              data = loginData;
+              // If signup successful, use the session from signup
+              if (signUpData?.session) {
+                data = signUpData;
+              }
             } else if (error) {
               throw error;
             }
@@ -263,6 +249,7 @@
           } catch (error) {
             errorDiv.style.display = "block";
             errorDiv.style.color = "#f44336";
+            errorDiv.style.backgroundColor = "rgba(244, 67, 54, 0.1)";
             errorDiv.textContent = error.message;
           } finally {
             loadingDiv.style.display = "none";
