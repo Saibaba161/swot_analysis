@@ -1,21 +1,16 @@
 {
-  "name": "backend",
+  "name": "swot-analysis-backend",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "Backend for Website SWOT Analysis tool",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "axios": "^1.7.2",
+    "express": "^4.18.2",
+    "axios": "^1.4.0",
     "cheerio": "^1.0.0-rc.12",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
-    "nodemon": "^3.1.4"
+    "@supabase/supabase-js": "^2.38.0"
   }
 }

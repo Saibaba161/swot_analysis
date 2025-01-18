@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Website SWOT Analysis</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .container {
+        width: 100%;
+        max-width: 400px;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        background-color: #4caf50;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
+      button:hover {
+        background-color: #45a049;
+      }
+      .error {
+        color: red;
+        text-align: center;
+        margin-top: 10px;
+        display: none;
+      }
+      .auth-links {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .auth-links a {
+        color: #4caf50;
+        text-decoration: none;
+      }
+      .auth-links a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Login</h1>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required />
+        </div>
+        <button type="submit">Login</button>
+        <div id="error" class="error"></div>
+      </form>
+    </div>
+
+    <script>
+      const supabaseUrl = "SUPABASE_URL";
+      const supabaseKey = "SUPABASE_SERVICE_KEY";
+      const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const errorDiv = document.getElementById("error");
+
+          try {
+            // First try to sign in
+            let { data, error } = await supabase.auth.signInWithPassword({
+              email,
+              password,
+            });
+
+            // If login fails with "invalid credentials", try to sign up
+            if (error && error.message.includes("Invalid login credentials")) {
+              const { data: signUpData, error: signUpError } =
+                await supabase.auth.signUp({
+                  email,
+                  password,
+                });
+
+              if (signUpError) throw signUpError;
+
+              // If signup successful, try login again
+              if (signUpData) {
+                const { data: loginData, error: loginError } =
+                  await supabase.auth.signInWithPassword({
+                    email,
+                    password,
+                  });
+
+                if (loginError) throw loginError;
+                data = loginData;
+              }
+            } else if (error) {
+              throw error;
+            }
+
+            // Store the session and redirect
+            localStorage.setItem(
+              "supabase.auth.token",
+              data.session.access_token
+            );
+            window.location.href = "/index.html";
+          } catch (error) {
+            errorDiv.style.display = "block";
+            errorDiv.textContent = error.message;
+          }
+        });
+    </script>
+  </body>
+</html>

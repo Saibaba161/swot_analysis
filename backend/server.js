@@ -2,29 +2,48 @@ const express = require('express');
 const axios = require('axios');
 const cheerio = require('cheerio');
 const cors = require('cors');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express()
 const port = process.env.PORT || 8000
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS
+// Initialize Supabase client
+const supabase = createClient(
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_SERVICE_KEY
+);
 
+// CORS configuration
 app.use(cors({
-    origin: function(origin,callback) {
-        if(!origin) return callback(null, true);
-        if(allowedOrigins.indexOf(origin) === -1) {
-            var msg = 'The CORS policy for this site does not allow access from the specified origin'
-            return callback(new Error(msg), false)
-        }
-        return callback(null, true)
-    }
+    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:8000'],
+    credentials: true
 }));
-
 
 app.use(express.json());
 app.use(express.static('public'));
 
+// Authentication middleware
+async function authenticateRequest(req, res, next) {
+    const authHeader = req.headers.authorization;
+    
+    if (!authHeader) {
+        return res.status(401).json({ error: 'No authorization header' });
+    }
 
-app.post('/analyze', async (req, res) => {
+    const token = authHeader.split(' ')[1];
+    
+    try {
+        const { data: { user }, error } = await supabase.auth.getUser(token);
+        if (error) throw error;
+        req.user = user;
+        next();
+    } catch (error) {
+        return res.status(401).json({ error: 'Invalid token' });
+    }
+}
+
+// Protected route
+app.post('/analyze', authenticateRequest, async (req, res) => {
     try {
         const { url } = req.body;
         const analysis = await analyzeSWOT(url);
