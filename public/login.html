@@ -220,39 +220,49 @@
               password,
             });
 
-            // If login fails with "invalid credentials", try to sign up
-            if (error && error.message.includes("Invalid login credentials")) {
+            // If login fails with invalid credentials, try to sign up
+            if (
+              error &&
+              (error.message.includes("Invalid login credentials") ||
+                error.message.includes("Email not confirmed"))
+            ) {
               const { data: signUpData, error: signUpError } =
                 await supabaseClient.auth.signUp({
                   email,
                   password,
+                  options: {
+                    data: {
+                      email_confirmed: true,
+                    },
+                  },
                 });
 
               if (signUpError) throw signUpError;
 
-              // If signup successful, try login again
-              if (signUpData) {
-                const { data: loginData, error: loginError } =
-                  await supabaseClient.auth.signInWithPassword({
-                    email,
-                    password,
-                  });
+              // Try to sign in immediately after signup
+              const { data: loginData, error: loginError } =
+                await supabaseClient.auth.signInWithPassword({
+                  email,
+                  password,
+                });
 
-                if (loginError) throw loginError;
-                data = loginData;
-              }
+              if (loginError) throw loginError;
+              data = loginData;
             } else if (error) {
               throw error;
             }
 
-            // Store the session and redirect
-            localStorage.setItem(
-              "supabase.auth.token",
-              data.session.access_token
-            );
-            window.location.href = "/index.html";
+            // If we have a session, store it and redirect
+            if (data?.session) {
+              localStorage.setItem(
+                "supabase.auth.token",
+                data.session.access_token
+              );
+              window.location.href = "/index.html";
+            }
           } catch (error) {
             errorDiv.style.display = "block";
+            errorDiv.style.color = "#f44336";
             errorDiv.textContent = error.message;
           } finally {
             loadingDiv.style.display = "none";
