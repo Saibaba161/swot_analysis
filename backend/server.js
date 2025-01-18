@@ -9,6 +9,16 @@ require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const app = express()
 const port = process.env.PORT || 8000
 
+// Check for required environment variables
+const requiredEnvVars = ['SUPABASE_URL', 'SUPABASE_SERVICE_KEY'];
+const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+    console.error('Error: Missing required environment variables:', missingEnvVars.join(', '));
+    console.error('Please create a .env file in the root directory with the required variables.');
+    process.exit(1);
+}
+
 // Initialize Supabase client
 const supabase = createClient(
     process.env.SUPABASE_URL,
