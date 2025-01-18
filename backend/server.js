@@ -15,12 +15,24 @@ const supabase = createClient(
 
 // CORS configuration
 app.use(cors({
-    origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:8000'],
-    credentials: true
+    // origin: function(origin,callback) {
+    //     if(!origin) return callback(null, true);
+    //     if(allowedOrigins.indexOf(origin) === -1) {
+    //         var msg = 'The CORS policy for this site does not allow access from the specified origin'
+    //         return callback(new Error(msg), false)
+    //     }
+    //     return callback(null, true)
+    //}
 }));
 
+
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static("../public"));
+
+app.get("/", (req, res) => {
+  res.sendFile("../public/index.html");
+});
+
 
 // Authentication middleware
 async function authenticateRequest(req, res, next) {
