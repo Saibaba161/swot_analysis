@@ -6,100 +6,193 @@
     <title>Login - Website SWOT Analysis</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
+      :root {
+        --primary-color: #4caf50;
+        --primary-hover: #45a049;
+        --text-color: #333;
+        --error-color: #f44336;
+        --border-color: #ddd;
+      }
+
+      * {
+        box-sizing: border-box;
         margin: 0;
-        padding: 20px;
-        background-color: #f4f4f4;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        min-height: 100vh;
+        padding: 20px;
       }
+
       .container {
         width: 100%;
         max-width: 400px;
         background: white;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
       }
-      h1 {
+
+      .logo {
         text-align: center;
-        color: #333;
         margin-bottom: 30px;
       }
-      .form-group {
-        margin-bottom: 20px;
+
+      .logo img {
+        width: 60px;
+        height: 60px;
       }
+
+      h1 {
+        text-align: center;
+        color: var(--text-color);
+        margin-bottom: 30px;
+        font-size: 24px;
+        font-weight: 600;
+      }
+
+      .form-group {
+        margin-bottom: 24px;
+      }
+
       label {
         display: block;
-        margin-bottom: 5px;
-        color: #555;
+        margin-bottom: 8px;
+        color: var(--text-color);
+        font-weight: 500;
       }
+
       input {
-        width: 100%;
-        padding: 10px;
-        font-size: 16px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-      }
-      button {
         width: 100%;
         padding: 12px;
         font-size: 16px;
-        background-color: #4caf50;
+        border: 2px solid var(--border-color);
+        border-radius: 8px;
+        transition: border-color 0.3s ease;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+      }
+
+      button {
+        width: 100%;
+        padding: 14px;
+        font-size: 16px;
+        font-weight: 600;
+        background-color: var(--primary-color);
         color: white;
         border: none;
-        border-radius: 4px;
+        border-radius: 8px;
         cursor: pointer;
-        margin-bottom: 10px;
+        transition: background-color 0.3s ease, transform 0.1s ease;
       }
+
       button:hover {
-        background-color: #45a049;
+        background-color: var(--primary-hover);
       }
+
+      button:active {
+        transform: scale(0.98);
+      }
+
       .error {
-        color: red;
+        color: var(--error-color);
         text-align: center;
-        margin-top: 10px;
+        margin-top: 16px;
         display: none;
+        padding: 10px;
+        border-radius: 6px;
+        background-color: rgba(244, 67, 54, 0.1);
       }
-      .auth-links {
+
+      #loading {
+        display: none;
         text-align: center;
-        margin-top: 20px;
+        margin-top: 16px;
+        color: var(--text-color);
       }
-      .auth-links a {
-        color: #4caf50;
-        text-decoration: none;
-      }
-      .auth-links a:hover {
-        text-decoration: underline;
+
+      .welcome-text {
+        text-align: center;
+        color: #666;
+        margin-bottom: 30px;
+        font-size: 16px;
       }
     </style>
   </head>
   <body>
     <div class="container">
-      <h1>Login</h1>
+      <div class="logo">
+        <svg
+          width="60"
+          height="60"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+        </svg>
+      </div>
+      <h1>Welcome Back</h1>
+      <p class="welcome-text">Sign in to analyze websites with SWOT analysis</p>
       <form id="loginForm">
         <div class="form-group">
           <label for="email">Email</label>
-          <input type="email" id="email" required />
+          <input
+            type="email"
+            id="email"
+            required
+            autocomplete="email"
+            placeholder="Enter your email"
+          />
         </div>
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" required />
+          <input
+            type="password"
+            id="password"
+            required
+            autocomplete="current-password"
+            placeholder="Enter your password"
+          />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit">Sign In</button>
+        <div id="loading">Signing in...</div>
         <div id="error" class="error"></div>
       </form>
     </div>
 
     <script>
-      const supabaseUrl = "SUPABASE_URL";
-      const supabaseKey = "SUPABASE_SERVICE_KEY";
+      const supabaseUrl = "https://jwmxtrkxdhdxqjprplzk.supabase.co";
+      const supabaseKey =
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp3bXh0cmt4ZGhkeHFqcHJwbHprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzcxODUzNTUsImV4cCI6MjA1Mjc2MTM1NX0.rh968cs_vbhEqB2Yc89WkfRaZXoTKwNSvzbNgTGNchE";
       const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+      // Check if user is already logged in
+      async function checkAuth() {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (session) {
+          window.location.href = "/index.html";
+        }
+      }
+
+      // Check auth when page loads
+      checkAuth();
 
       document
         .getElementById("loginForm")
@@ -108,8 +201,14 @@
           const email = document.getElementById("email").value;
           const password = document.getElementById("password").value;
           const errorDiv = document.getElementById("error");
+          const loadingDiv = document.getElementById("loading");
+          const submitButton = this.querySelector('button[type="submit"]');
 
           try {
+            errorDiv.style.display = "none";
+            loadingDiv.style.display = "block";
+            submitButton.disabled = true;
+
             // First try to sign in
             let { data, error } = await supabase.auth.signInWithPassword({
               email,
@@ -150,6 +249,9 @@
           } catch (error) {
             errorDiv.style.display = "block";
             errorDiv.textContent = error.message;
+          } finally {
+            loadingDiv.style.display = "none";
+            submitButton.disabled = false;
           }
         });
     </script>
